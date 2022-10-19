@@ -1,10 +1,17 @@
-import PropTypes from 'prop-types';
 import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
+import { addContact } from 'redux/contactSlice';
+import { getContacts } from 'redux/selectors';
+
 import { Form, Label, Input, Button } from './ContactForm.styled';
 
-export const ContactForm = ({ onSubmit }) => {
+export const ContactForm = () => {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
+
+  const contacts = useSelector(getContacts);
+  const dispatch = useDispatch();
 
   const handleChange = e => {
     const { name, value } = e.currentTarget;
@@ -22,8 +29,11 @@ export const ContactForm = ({ onSubmit }) => {
 
   const collectContact = e => {
     e.preventDefault();
+    if (contacts.find(contact => contact.name === name)) {
+      toast.warn(`${name} is already in contacts`);
+    }
 
-    onSubmit(name, number);
+    dispatch(addContact(name, number));
 
     reset();
   };
@@ -62,8 +72,4 @@ export const ContactForm = ({ onSubmit }) => {
       <Button type="submit">Add contact</Button>
     </Form>
   );
-};
-
-ContactForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
 };
